@@ -9,7 +9,7 @@ const CommonLayout = async ({ children }: { children: React.ReactNode }) => {
     <div className="flex min-h-screen flex-col">
       <Navbar session={session} />
 
-      <div className="w-[90%] mx-auto py-8 h-screen">{children}</div>
+      <div className="w-[90%] mx-auto py-8">{children}</div>
 
       <Footer />
     </div>

@@ -1,12 +1,11 @@
-import { Button } from "@/components/ui/button";
-import { ToggleButton } from "@/components/ui/ToggleButton";
+import HeroSection from "@/components/modules/home/HeroSection";
+import Reviews from "@/components/modules/home/Reviews";
 
 export default function HomePage() {
   return (
    <div>
-    <h1>Hello World</h1>
-    <Button effect={"shine"}>Click me</Button>
-    <ToggleButton />
+   <HeroSection />
+   <Reviews />
    </div>
   );
 }
