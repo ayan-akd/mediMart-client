@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ToggleButton } from "@/components/ui/ToggleButton";
 
-export default function Home() {
+export default function HomePage() {
   return (
    <div>
     <h1>Hello World</h1>
