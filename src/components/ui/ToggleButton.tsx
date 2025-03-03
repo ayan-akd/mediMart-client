@@ -28,7 +28,7 @@ export function ToggleButton() {
       <Tooltip delayDuration={100}>
         <TooltipTrigger asChild>
           <Button
-            className="relative rounded-full w-8 h-8 bg-background mr-2 overflow-hidden flex items-center justify-center"
+            className="relative cursor-pointer rounded-full w-8 h-8 bg-background mr-2 overflow-hidden flex items-center justify-center"
             variant="outline"
             size="icon"
             onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}

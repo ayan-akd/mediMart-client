@@ -1,15 +1,22 @@
 "use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { CiMenuFries } from "react-icons/ci";
-import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { usePathname } from "next/navigation";
 import logo from "@/assets/logo.svg";
 import Image from "next/image";
-import { signOut } from "next-auth/react";
 import { ToggleButton } from "../ui/ToggleButton";
+import { useUser } from "@/context/UserContext";
+import { logout } from "@/services/auth";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import userLogo from "@/assets/images/user.png";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 const linkList = [
   {
@@ -22,7 +29,7 @@ const linkList = [
   },
   {
     name: "Dashboard",
-    href: "/dashboard",
+    href: "/dashboard/profile",
   },
   {
     name: "About",
@@ -34,16 +41,15 @@ const linkList = [
   },
 ];
 
-type UserProps = {
-  user?: {
-    name?: string | null | undefined;
-    email?: string | null | undefined;
-    image?: string | null | undefined;
-  };
-};
-export default function Navbar({ session }: { session: UserProps | null }) {
+export default function Navbar() {
+  const { user, setIsLoading } = useUser();
   const isScrollingDown = useScrollDirection();
   const pathname = usePathname();
+
+  const handleLogOut = () => {
+    logout();
+    setIsLoading(true);
+  };
 
   const isActive = (path: string) => {
     return pathname === path;
@@ -68,7 +74,7 @@ export default function Navbar({ session }: { session: UserProps | null }) {
             className="h-8 w-8"
           />
 
-          <h1 className="text-xl font-bold">Ayan Kumar</h1>
+          <h1 className="text-xl font-bold">MediMart</h1>
         </Link>
         <nav className="hidden items-center gap-2 text-sm font-medium md:flex">
           {linkList.map((link) => (
@@ -92,48 +98,68 @@ export default function Navbar({ session }: { session: UserProps | null }) {
           ))}
         </nav>
         <div className="flex items-center gap-4">
-          {session?.user ? (
-            <Button onClick={()=> signOut()} className="h-8">Logout</Button>
+          {user ? (
+            <Button onClick={handleLogOut} className="h-8 cursor-pointer hidden md:flex">
+              Logout
+            </Button>
           ) : (
             <Link href="/login">
-              <Button effect="shine" className="h-8">Login</Button>
+              <Button effect="shine" className="h-8 cursor-pointer hidden md:flex">
+                Login
+              </Button>
             </Link>
           )}
 
           <ToggleButton />
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full md:hidden"
-              >
-                <CiMenuFries className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                <span className="sr-only">Toggle navigation menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="md:hidden">
-              <DialogTitle className="sr-only">Navigation Menu</DialogTitle>
-              <DialogDescription className="sr-only">
-                This menu provides navigation links to different sections.
-              </DialogDescription>
-              <div className="grid gap-4 p-4">
-                {linkList.map((link) => (
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              {user ? (
+                <Avatar>
+                  <AvatarImage src={userLogo.src} />
+                  <AvatarFallback>User</AvatarFallback>
+                </Avatar>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full md:hidden"
+                >
+                  <CiMenuFries className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                  <span className="sr-only">Toggle navigation menu</span>
+                </Button>
+              )}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48 md:hidden">
+              {linkList.map((link) => (
+                <DropdownMenuItem key={link.name}>
                   <Link
-                    key={link.name}
                     href={link.href}
-                    className={`${
+                    className={`w-full ${
                       isActive(link.href)
-                        ? "text-primary-500 dark:text-primary-500"
+                        ? "text-primary"
                         : "text-gray-500 dark:text-gray-400"
                     }`}
                   >
                     {link.name}
                   </Link>
-                ))}
-              </div>
-            </SheetContent>
-          </Sheet>
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuItem>
+                {user ? (
+                  <Button onClick={handleLogOut} className="h-8 cursor-pointer">
+                    Logout
+                  </Button>
+                ) : (
+                  <Link href="/login">
+                    <Button effect="shine" className="h-8 cursor-pointer">
+                      Login
+                    </Button>
+                  </Link>
+                )}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>

@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
+import { registerUser } from "@/services/auth";
+import { useUser } from "@/context/UserContext";
 
 export type TUserData = {
   username: string;
@@ -29,26 +31,31 @@ const formSchema = z.object({
 });
 
 export default function RegisterForm() {
+  const { setIsLoading } = useUser();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       email: "",
       password: "",
-    }
+    },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const {
+    formState: { isSubmitting },
+  } = form;
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      console.log(values);
-      toast(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      );
-    } catch (error) {
-      console.error("Form submission error", error);
-      toast.error("Failed to submit the form. Please try again.");
+      const res = await registerUser(values);
+      setIsLoading(true);
+      if (res.success) {
+        toast.success("Registration successful, Please login to continue.");
+      } else {
+        toast.error(res?.message);
+      }
+    } catch (error: any) {
+      toast.error(error);
     }
   }
 
@@ -111,7 +118,9 @@ export default function RegisterForm() {
             </FormItem>
           )}
         />
-        <Button className="w-full" effect={"shine"} type="submit">Register</Button>
+        <Button className="w-full cursor-pointer" effect={"shine"} type="submit">
+          {isSubmitting ? "Registering..." : "Register"}
+        </Button>
       </form>
     </Form>
   );

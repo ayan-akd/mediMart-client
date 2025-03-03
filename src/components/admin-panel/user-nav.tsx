@@ -20,9 +20,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { signOut } from "next-auth/react";
+import { useUser } from "@/context/UserContext";
+import { logout } from "@/services/auth";
 
 export function UserNav() {
+  const {setIsLoading} = useUser();
+    const handleLogOut = () => {
+        logout();
+        setIsLoading(true);
+      };
   return (
     <DropdownMenu>
       <TooltipProvider disableHoverableContent>
@@ -69,7 +75,7 @@ export function UserNav() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="hover:cursor-pointer" onClick={() => signOut()}>
+        <DropdownMenuItem className="hover:cursor-pointer" onClick={handleLogOut}>
           <LogOut className="w-4 h-4 mr-3 text-muted-foreground" />
           Sign out
         </DropdownMenuItem>

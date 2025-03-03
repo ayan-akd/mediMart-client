@@ -37,7 +37,7 @@ export function SheetMenu() {
                 height={32}
                 className="h-8 w-8"
               />
-              <SheetTitle className="font-bold text-lg">Ayan Kumar</SheetTitle>
+              <SheetTitle className="font-bold text-lg">MediMart</SheetTitle>
               <SheetDescription className="sr-only"></SheetDescription>
             </Link>
           </Button>

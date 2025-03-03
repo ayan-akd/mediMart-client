@@ -15,6 +15,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
+import { loginUser } from "@/services/auth";
+import { useUser } from "@/context/UserContext";
+import { useRouter } from "next/navigation";
 
 export type TLoginFormValues = {
   email: string;
@@ -27,6 +30,8 @@ const formSchema = z.object({
 });
 
 export default function LoginForm() {
+  const { setIsLoading } = useUser();
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -35,13 +40,22 @@ export default function LoginForm() {
     }
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const {
+    formState: { isSubmitting },
+  } = form;
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      console.log(values);
-      toast.success("Form submitted successfully!");
-    } catch (error) {
-      console.error("Form submission error", error);
-      toast.error("Failed to submit the form. Please try again.");
+      const res = await loginUser(values);
+      setIsLoading(true);
+      if (res.success) {
+        toast.success(res?.message);
+        router.push("/");
+      } else {
+        toast.error(res?.message);
+      }
+    } catch (error:any) {
+      toast.error(error);
     }
   }
 
@@ -84,8 +98,8 @@ export default function LoginForm() {
             </FormItem>
           )}
         />
-        <Button className="w-full" effect={"shine"} type="submit">
-          Login
+        <Button className="w-full cursor-pointer" effect={"shine"} type="submit">
+          {isSubmitting ? "Logging in..." : "Login"}
         </Button>
       </form>
     </Form>

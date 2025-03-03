@@ -5,7 +5,6 @@ import { Ellipsis, LogOut } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
-import { getMenuList } from "@/lib/menu-list";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CollapseMenuButton } from "@/components/admin-panel/collapse-menu-button";
@@ -15,15 +14,27 @@ import {
   TooltipContent,
   TooltipProvider
 } from "@/components/ui/tooltip";
-import { signOut } from "next-auth/react";
+import { getMenuList } from "@/lib/menu-list";
+import { useUser } from "@/context/UserContext";
+import { logout } from "@/services/auth";
+
 
 interface MenuProps {
   isOpen: boolean | undefined;
 }
 
 export function Menu({ isOpen }: MenuProps) {
+  const {user,setIsLoading} = useUser();
+  let role = "customer"
+  if (user) {
+    role = user.role;
+  }
   const pathname = usePathname();
-  const menuList = getMenuList(pathname);
+  const menuList = getMenuList(role);
+  const handleLogOut = () => {
+      logout();
+      setIsLoading(true);
+    };
 
   return (
     <ScrollArea className="[&>div>div[style]]:!block">
@@ -119,7 +130,7 @@ export function Menu({ isOpen }: MenuProps) {
               <Tooltip delayDuration={100}>
                 <TooltipTrigger asChild>
                   <Button
-                    onClick={() => signOut()}
+                    onClick={handleLogOut}
                     variant="outline"
                     className="w-full justify-center h-10 mt-5"
                   >

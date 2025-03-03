@@ -1,4 +1,3 @@
-"use client";
 import LoginForm from "@/components/forms/LoginForm";
 import RegisterForm from "@/components/forms/RegisterForm";
 import {
@@ -11,9 +10,15 @@ import {
 } from "@/components/ui/card";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Metadata } from "next";
+export const metadata: Metadata = {
+  title: "MediMart | Login",
+  description:
+    "Login to your MediMart account to access your personalized dashboard, manage your orders, and explore a wide range of healthcare products. Sign in securely to enjoy a seamless shopping experience.",
+};
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex justify-center items-center">
+    <div className="h-[calc(100vh-200px)] flex justify-center items-center">
       <Tabs defaultValue="login" className="w-[400px]">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="login">Login</TabsTrigger>

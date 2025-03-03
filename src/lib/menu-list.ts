@@ -3,7 +3,9 @@ import {
   LayoutGrid,
   LucideIcon,
   LayoutList,
-  MailOpen
+  UserPenIcon,
+  DollarSignIcon,
+  HistoryIcon
 } from "lucide-react";
 
 type Submenu = {
@@ -25,9 +27,8 @@ type Group = {
   menus: Menu[];
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function getMenuList(pathname: string): Group[] {
-  return [
+export function getMenuList(role: string): Group[] {
+  const commonMenus = [
     {
       groupLabel: "",
       menus: [
@@ -35,12 +36,15 @@ export function getMenuList(pathname: string): Group[] {
           href: "/dashboard/profile",
           label: "Profile",
           icon: LayoutGrid,
-          submenus: []
-        }
-      ]
+          submenus: [],
+        },
+      ],
     },
+  ];
+
+  const adminMenus = [
     {
-      groupLabel: "",
+      groupLabel: "Admin Controls",
       menus: [
         {
           href: "/dashboard/admin/manage-medicines",
@@ -55,19 +59,29 @@ export function getMenuList(pathname: string): Group[] {
         {
           href: "/dashboard/admin/manage-users",
           label: "Manage Users",
-          icon: MailOpen,
+          icon: UserPenIcon,
         },
         {
           href: "/dashboard/admin/manage-payments",
           label: "Manage Payments",
-          icon: MailOpen,
+          icon: DollarSignIcon,
         },
+      ],
+    },
+  ];
+
+  const userMenus = [
+    {
+      groupLabel: "User Controls",
+      menus: [
         {
           href: "/dashboard/user/orders",
           label: "Order History",
-          icon: MailOpen,
-        }
-      ]
+          icon: HistoryIcon,
+        },
+      ],
     },
   ];
+
+  return role === "admin" ? [...commonMenus, ...adminMenus] : [...commonMenus, ...userMenus];
 }

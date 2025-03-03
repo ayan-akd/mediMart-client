@@ -59,7 +59,7 @@ export function Sidebar() {
                   : "translate-x-0 opacity-100"
               )}
             >
-              Ayan Kumar
+              MediMart
             </h1>
           </Link>
         </Button>
