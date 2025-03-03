@@ -1,7 +1,7 @@
 "use server";
+import { getValidToken } from "@/lib/VerifyToken";
 import { IMedicine } from "@/types";
 import { revalidateTag } from "next/cache";
-import { cookies } from "next/headers";
 
 // get all medicine
 export const getAllMedicine = async (
@@ -52,13 +52,14 @@ export const getSingleMedicine = async (medicineId: string) => {
 
 // add medicine
 export const addMedicine = async (medicineData: IMedicine): Promise<any> => {
+  const token = await getValidToken();
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_API}/medicine`, {
       method: "POST",
       body: JSON.stringify(medicineData),
       headers: {
         "Content-type": "application/json",
-        Authorization: (await cookies()).get("accessToken")!.value,
+        Authorization: token,
       },
     });
     revalidateTag("Medicine");
@@ -73,6 +74,7 @@ export const updateMedicine = async (
   medicineData: IMedicine,
   medicineId: string
 ): Promise<any> => {
+  const token = await getValidToken();
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_API}/medicine/${medicineId}`,
@@ -81,7 +83,7 @@ export const updateMedicine = async (
         body: JSON.stringify(medicineData),
         headers: {
           "Content-type": "application/json",
-          Authorization: (await cookies()).get("accessToken")!.value,
+          Authorization: token,
         },
       }
     );
@@ -95,13 +97,14 @@ export const updateMedicine = async (
 export const deleteMedicine = async (
     medicineId: string
   ): Promise<any> => {
+    const token = await getValidToken();
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_API}/medicine/${medicineId}`,
         {
           method: "DELETE",
           headers: {
-            Authorization: (await cookies()).get("accessToken")!.value,
+            Authorization: token,
           },
         }
       );

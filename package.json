@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "create:module": "bun run src/lib/createModule.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.2",
@@ -24,6 +25,7 @@
     "@radix-ui/react-slot": "^1.1.2",
     "@radix-ui/react-tabs": "^1.1.3",
     "@radix-ui/react-tooltip": "^1.1.8",
+    "@reduxjs/toolkit": "^2.6.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -41,6 +43,8 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",
     "react-icons": "^5.5.0",
+    "react-redux": "^9.2.0",
+    "redux-persist": "^6.0.0",
     "sharp": "0.32.6",
     "sonner": "^2.0.1",
     "tailwind-merge": "^3.0.2",

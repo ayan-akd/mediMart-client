@@ -8,9 +8,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Loading from "@/components/ui/loading";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Metadata } from "next";
+import { Suspense } from "react";
 export const metadata: Metadata = {
   title: "MediMart | Login",
   description:
@@ -31,7 +33,9 @@ export default function LoginPage() {
               <CardDescription></CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
-              <LoginForm />
+              <Suspense fallback={<Loading />}>
+                <LoginForm />
+              </Suspense>
             </CardContent>
             <CardFooter></CardFooter>
           </Card>

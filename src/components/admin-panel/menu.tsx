@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Ellipsis, LogOut } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -25,14 +25,16 @@ interface MenuProps {
 
 export function Menu({ isOpen }: MenuProps) {
   const {user,setIsLoading} = useUser();
+  const router = useRouter();
   let role = "customer"
   if (user) {
-    role = user.role;
+    role = user.role as string;
   }
   const pathname = usePathname();
   const menuList = getMenuList(role);
   const handleLogOut = () => {
       logout();
+      router.push("/login");
       setIsLoading(true);
     };
 

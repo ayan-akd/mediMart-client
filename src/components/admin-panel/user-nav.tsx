@@ -22,11 +22,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useUser } from "@/context/UserContext";
 import { logout } from "@/services/auth";
+import { useRouter } from "next/navigation";
 
 export function UserNav() {
   const {setIsLoading} = useUser();
+  const router = useRouter();
     const handleLogOut = () => {
         logout();
+        router.push("/login");
         setIsLoading(true);
       };
   return (

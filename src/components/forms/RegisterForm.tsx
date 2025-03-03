@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { registerUser } from "@/services/auth";
 import { useUser } from "@/context/UserContext";
+import { Loader2 } from "lucide-react";
 
 export type TUserData = {
   username: string;
@@ -118,8 +119,16 @@ export default function RegisterForm() {
             </FormItem>
           )}
         />
-        <Button className="w-full cursor-pointer" effect={"shine"} type="submit">
-          {isSubmitting ? "Registering..." : "Register"}
+        <Button
+          className="w-full cursor-pointer"
+          effect={"shine"}
+          type="submit"
+        >
+          {isSubmitting ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            "Register"
+          )}
         </Button>
       </form>
     </Form>

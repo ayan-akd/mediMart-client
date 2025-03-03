@@ -8,7 +8,7 @@ import heroImage from "@/assets/hero.jpg";
 
 export default function HeroSection() {
     return (
-        <div className="relative min-h-[85vh] md:min-h-[75vh] bg-gradient-to-r from-rose-50 to-rose-100 dark:from-gray-950 dark:to-gray-900">
+        <div className="relative rounded-4xl min-h-[85vh] md:min-h-[75vh] bg-gradient-to-r from-rose-50 to-rose-100 dark:from-gray-950 dark:to-gray-900">
             <div className="container mx-auto px-6 py-16 flex flex-col lg:flex-row items-center justify-between">
                 <motion.div 
                     initial={{ opacity: 0, x: -20 }}

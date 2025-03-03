@@ -1,14 +1,15 @@
 import { getCurrentUser } from "@/services/auth";
 import { NextRequest, NextResponse } from "next/server";
 
-
 type Role = keyof typeof roleBasedPrivateRoutes;
 
-const authRoutes = ["/login", "/register"];
+const authRoutes = ["/login"];
+
+const sharedRoutes = [/^\/dashboard\/profile/];
 
 const roleBasedPrivateRoutes = {
-  customer: [/^\/user/],
-  admin: [/^\/admin/],
+  customer: [/^\/dashboard\/user/],
+  admin: [/^\/dashboard\/admin/],
 };
 
 export const middleware = async (request: NextRequest) => {
@@ -19,16 +20,19 @@ export const middleware = async (request: NextRequest) => {
   if (!userInfo) {
     if (authRoutes.includes(pathname)) {
       return NextResponse.next();
-    } else {
-      return NextResponse.redirect(
-        new URL(
-          `${process.env.NEXT_PUBLIC_CLIENT_API}/login?redirectPath=${pathname}`,
-          request.url
-        )
-      );
     }
+    return NextResponse.redirect(
+      new URL(
+        `/login?redirectPath=${pathname}`,
+        request.url
+      )
+    );
   }
 
+  if (sharedRoutes.some(route => pathname.match(route))) {
+    return NextResponse.next();
+  }
+  
   if (userInfo?.role && roleBasedPrivateRoutes[userInfo?.role as Role]) {
     const routes = roleBasedPrivateRoutes[userInfo?.role as Role];
     if (routes.some((route) => pathname.match(route))) {
@@ -42,6 +46,7 @@ export const middleware = async (request: NextRequest) => {
 export const config = {
   matcher: [
     "/login",
+    "/checkout",
     "/dashboard",
     "/dashboard/:path*",
   ],

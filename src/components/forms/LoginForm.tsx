@@ -17,7 +17,8 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { loginUser } from "@/services/auth";
 import { useUser } from "@/context/UserContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 export type TLoginFormValues = {
   email: string;
@@ -32,12 +33,14 @@ const formSchema = z.object({
 export default function LoginForm() {
   const { setIsLoading } = useUser();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirectPath");
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
-    }
+    },
   });
 
   const {
@@ -48,13 +51,17 @@ export default function LoginForm() {
     try {
       const res = await loginUser(values);
       setIsLoading(true);
-      if (res.success) {
+      if (res?.success) {
         toast.success(res?.message);
-        router.push("/");
+        if (redirect) {
+          router.push(redirect);
+        } else {
+          router.push("/");
+        }
       } else {
         toast.error(res?.message);
       }
-    } catch (error:any) {
+    } catch (error: any) {
       toast.error(error);
     }
   }
@@ -91,15 +98,23 @@ export default function LoginForm() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <PasswordInput placeholder="Placeholder" {...field} />
+                <PasswordInput placeholder="Enter your password..." {...field} />
               </FormControl>
 
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button className="w-full cursor-pointer" effect={"shine"} type="submit">
-          {isSubmitting ? "Logging in..." : "Login"}
+        <Button
+          className="w-full cursor-pointer"
+          effect={"shine"}
+          type="submit"
+        >
+          {isSubmitting ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            "Login"
+          )}
         </Button>
       </form>
     </Form>
