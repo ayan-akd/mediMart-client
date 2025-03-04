@@ -1,3 +1,5 @@
+import AllMedicines from "@/components/modules/shop/AllMedicines";
+import { getAllMedicine } from "@/services/medicines";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -5,10 +7,11 @@ export const metadata: Metadata = {
     description:
       "Explore our wide range of healthcare products and services at MediMart. Shop for prescription medications, over-the-counter drugs, medical equipment, and more. We offer a convenient and secure online shopping experience.",
   };
-export default function ShopPage() {
+export default async function ShopPage() {
+    const {data} = await getAllMedicine();
     return (
         <div>
-            <h1>This is the ShopPage component</h1>
+            <AllMedicines data={data.data} />
         </div>
     );
 }

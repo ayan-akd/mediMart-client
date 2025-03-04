@@ -65,7 +65,7 @@ export default function MedicineManagement({
                 Add Medicine
               </Button>
             }
-            title="Add Blog"
+            title="Add Medicine"
           />
         </div>
 
@@ -82,6 +82,7 @@ export default function MedicineManagement({
                   <TableHead>Name</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Quantity</TableHead>
+                  <TableHead>Category</TableHead>
                   <TableHead>Prescription</TableHead>
                   <TableHead className="text-center">Actions</TableHead>
                 </TableRow>
@@ -93,7 +94,7 @@ export default function MedicineManagement({
                       <Image
                         src={medicine.image}
                         alt={medicine.name}
-                        className="object-cover rounded"
+                        className="object-cover rounded w-16 h-16"
                         width={64}
                         height={64}
                       />
@@ -106,6 +107,9 @@ export default function MedicineManagement({
                     </TableCell>
                     <TableCell>
                       <Badge variant="secondary">{medicine.quantity}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      {medicine.category}
                     </TableCell>
                     <TableCell>
                       <Badge variant="secondary">
@@ -187,9 +191,9 @@ export default function MedicineManagement({
               <Image
                 src={selectedMedicine?.image as string}
                 alt={selectedMedicine?.name as string}
-                className="rounded cursor-pointer"
                 width={800}
                 height={400}
+                className="rounded cursor-pointer"
                 priority
               />
               <div>
