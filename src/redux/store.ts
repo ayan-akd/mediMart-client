@@ -6,11 +6,21 @@ import {
   PERSIST,
   PURGE,
   REGISTER,
+  persistReducer,
 } from "redux-persist";
+import cartSlice from "./features/cartSlice";
+import storage from "./storage";
+const persistOptions = {
+  key: "cart",
+  storage,
+};
 
+const persistedCart = persistReducer(persistOptions, cartSlice);
 export const makeStore = () => {
   return configureStore({
-    reducer: {},
+    reducer: {
+      cart: persistedCart,
+    },
     middleware: (getDefaultMiddlewares: any) =>
       getDefaultMiddlewares({
         serializableCheck: {
@@ -20,8 +30,6 @@ export const makeStore = () => {
   });
 };
 
-// Infer the type of makeStore
 export type AppStore = ReturnType<typeof makeStore>;
-// Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<AppStore["getState"]>;
 export type AppDispatch = AppStore["dispatch"];

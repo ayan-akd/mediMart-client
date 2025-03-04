@@ -6,16 +6,20 @@ import { Card } from "@/components/ui/card";
 import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useAppDispatch } from "@/redux/hook";
+import { addMedicineToCart } from "@/redux/features/cartSlice";
+import { toast } from "sonner";
 
 export default function MedicineDetailsCard({
   medicine,
 }: {
   medicine: IMedicine;
 }) {
-
-    const addToCart = (id:string) => {
-        console.log("Add to cart", id);
-    };
+  const dispatch = useAppDispatch();
+  const addToCart = (medicine: IMedicine) => {
+    dispatch(addMedicineToCart(medicine));
+    toast.success(`${medicine.name} added to cart!`);
+  };
   return (
     <div className="py-8">
       <Link href="/shop">
@@ -90,7 +94,7 @@ export default function MedicineDetailsCard({
                 className="flex-1"
                 disabled={medicine.quantity === 0}
                 onClick={() => {
-                  addToCart(medicine._id as string);
+                  addToCart(medicine);
                 }}
               >
                 <ShoppingCart className="mr-2 h-5 w-5" />

@@ -19,8 +19,13 @@ export const isTokenExpired = async (token: string): Promise<boolean> => {
 
 export const getValidToken = async (): Promise<string> => {
   const cookieStore = await cookies();
+  const accessTokenCookie = cookieStore.get("accessToken");
 
-  let token = cookieStore.get("accessToken")!.value;
+  if (!accessTokenCookie) {
+    return "";
+  }
+
+  let token = accessTokenCookie.value;
 
   if (!token || (await isTokenExpired(token))) {
     const { data } = await getNewToken();

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
 import { getValidToken } from "@/lib/VerifyToken";
@@ -25,6 +26,9 @@ export const getAllUsers = async () => {
 
 export const getMe = async () => {
   const token = await getValidToken();
+  if (!token) {
+    return null;
+  }
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_API}/users/me`, {
       next: {

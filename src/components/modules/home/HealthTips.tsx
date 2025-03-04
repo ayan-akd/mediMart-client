@@ -26,7 +26,7 @@ const healthTips = [
 
 export default function HealthTips() {
   return (
-    <section className="py-16">
+    <section className="container mx-auto py-16">
       <div className="container">
         <h2 className="text-3xl font-bold text-center mb-4">Daily Health Tips</h2>
         <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">

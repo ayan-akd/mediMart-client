@@ -25,12 +25,13 @@ import { logout } from "@/services/auth";
 import { useRouter } from "next/navigation";
 
 export function UserNav() {
-  const {setIsLoading} = useUser();
+  const {setIsLoading, contextLogout} = useUser();
   const router = useRouter();
     const handleLogOut = () => {
         logout();
-        router.push("/login");
+        contextLogout();
         setIsLoading(true);
+        router.push("/login");
       };
   return (
     <DropdownMenu>

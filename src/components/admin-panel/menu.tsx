@@ -24,7 +24,7 @@ interface MenuProps {
 }
 
 export function Menu({ isOpen }: MenuProps) {
-  const {user,setIsLoading} = useUser();
+  const {user,setIsLoading, contextLogout} = useUser();
   const router = useRouter();
   let role = "customer"
   if (user) {
@@ -34,8 +34,9 @@ export function Menu({ isOpen }: MenuProps) {
   const menuList = getMenuList(role);
   const handleLogOut = () => {
       logout();
-      router.push("/login");
+      contextLogout();
       setIsLoading(true);
+      router.push("/login");
     };
 
   return (

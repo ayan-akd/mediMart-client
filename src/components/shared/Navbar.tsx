@@ -9,6 +9,7 @@ import Image from "next/image";
 import { ToggleButton } from "../ui/ToggleButton";
 import { useUser } from "@/context/UserContext";
 import { logout } from "@/services/auth";
+import { ShoppingCart } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import userLogo from "@/assets/images/user.png";
 import {
@@ -17,37 +18,62 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { useAppSelector } from "@/redux/hook";
+import { orderedMedicineSelector } from "@/redux/features/cartSlice";
+import { Badge } from "../ui/badge";
 
-const linkList = [
-  {
-    name: "Home",
-    href: "/",
-  },
-  {
-    name: "Shop",
-    href: "/shop",
-  },
-  {
-    name: "Dashboard",
-    href: "/dashboard/profile",
-  },
-  {
-    name: "About",
-    href: "/about",
-  },
-  {
-    name: "Contact",
-    href: "/contact",
-  },
-];
 
 export default function Navbar() {
-  const { user, setIsLoading } = useUser();
+  const { user, setIsLoading, contextLogout } = useUser();
   const isScrollingDown = useScrollDirection();
+  const cartItems = useAppSelector(orderedMedicineSelector);
   const pathname = usePathname();
+  const linkList = [
+    {
+      name: "Home",
+      href: "/",
+    },
+    {
+      name: "Shop",
+      href: "/shop",
+    },
+    {
+      name: "Dashboard",
+      href: "/dashboard/profile",
+    },
+    {
+      name: "About",
+      href: "/about",
+    },
+    {
+      name: "Contact",
+      href: "/contact",
+    },
+    {
+      name: (
+        <div className="flex items-center gap-2">
+          Cart
+          <div className="relative">
+            <ShoppingCart size={20} />
+            {cartItems.length > 0 && (
+              <Badge 
+                variant="destructive" 
+                className="absolute -top-2 -right-2 h-4 w-4 flex items-center justify-center p-0 text-xs"
+              >
+                {cartItems.length}
+              </Badge>
+            )}
+          </div>
+        </div>
+      ),
+      href: "/cart",
+    }
+  ];
+  
 
   const handleLogOut = () => {
     logout();
+    contextLogout();
     setIsLoading(true);
   };
 
@@ -76,10 +102,10 @@ export default function Navbar() {
 
           <h1 className="text-xl font-bold">MediMart</h1>
         </Link>
-        <nav className="hidden items-center gap-2 text-sm font-medium md:flex">
-          {linkList.map((link) => (
+        <nav className="hidden items-center lg:gap-2 text-sm font-medium md:flex">
+          {linkList.map((link, index) => (
             <Button
-              key={link.name}
+              key={index}
               variant="link"
               effect={isActive(link.href) ? "underline" : "hoverUnderline"}
               className="md:p-1 lg:p-4"
@@ -116,7 +142,7 @@ export default function Navbar() {
             <DropdownMenuTrigger asChild>
               {user ? (
                 <Avatar>
-                  <AvatarImage src={userLogo.src} />
+                  <AvatarImage src={user?.profileImage || userLogo.src} />
                   <AvatarFallback>User</AvatarFallback>
                 </Avatar>
               ) : (
@@ -132,7 +158,7 @@ export default function Navbar() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 md:hidden">
               {linkList.map((link) => (
-                <DropdownMenuItem key={link.name}>
+                <DropdownMenuItem key={link.href}>
                   <Link
                     href={link.href}
                     className={`w-full ${

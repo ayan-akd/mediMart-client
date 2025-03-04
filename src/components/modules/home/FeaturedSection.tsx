@@ -31,7 +31,7 @@ export default function FeaturedSection({ data }: { data: IMedicine[] }) {
         .slice(0, 3);
 
     return (
-        <section className="py-16">
+        <section className="container mx-auto py-16">
             <div className="container">
                 <h2 className="text-3xl font-bold text-center mb-8">Featured Medicines</h2>
                 

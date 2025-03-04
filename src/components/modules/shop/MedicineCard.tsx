@@ -5,11 +5,16 @@ import { IMedicine } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
+import { useAppDispatch } from "@/redux/hook";
+import { addMedicineToCart } from "@/redux/features/cartSlice";
+import { toast } from "sonner";
 
 export default function MedicineCard({ medicine }: { medicine: IMedicine }) {
-    const addToCart = (id:string) => {
-        console.log("Add to cart", id);
-    };
+  const dispatch = useAppDispatch();
+  const addToCart = (medicine: IMedicine) => {
+    dispatch(addMedicineToCart(medicine));
+    toast.success(`${medicine.name} added to cart!`);
+  };
   return (
     <Card className="overflow-hidden">
       <div className="relative h-36">
@@ -51,11 +56,12 @@ export default function MedicineCard({ medicine }: { medicine: IMedicine }) {
             <Link href={`/shop/${medicine._id}`}>
               <Button variant="outline">View Details</Button>
             </Link>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="icon"
+              className="cursor-pointer"
               disabled={medicine.quantity === 0}
-              onClick={() =>addToCart( medicine._id as string )}
+              onClick={() => addToCart(medicine)}
             >
               <ShoppingCart className="h-4 w-4" />
             </Button>
