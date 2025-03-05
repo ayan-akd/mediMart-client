@@ -145,6 +145,9 @@ export default function VerifyOrder({
             <Link href="/dashboard/user/orders">
               <Button>View Orders</Button>
             </Link>
+            <Link href="/shop">
+              <Button>Continue Shopping</Button>
+            </Link>
           </CardContent>
         </Card>
       </div>

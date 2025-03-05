@@ -18,25 +18,45 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { IUser } from "@/types";
-import { Eye, Ban } from "lucide-react";
+import { Eye, Ban, ArrowUpDown, ChevronDown } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import React, { useRef, useState } from "react";
 import { toast } from "sonner";
 import userImage from "@/assets/images/user.png";
 import { changeStatus } from "@/services/UserService";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  SortingState,
+  useReactTable,
+  VisibilityState,
+} from "@tanstack/react-table";
+import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { GetUsersOrders } from "./GetUsersOrders";
 
-export default function UsersManagement({
-  users,
-}: {
-  users: IUser[];
-}) {
+
+export default function UsersManagement({ users }: { users: IUser[] }) {
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
   const [open, setOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentUsers = users.slice(indexOfFirstItem, indexOfLastItem);
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 8,
+  });
+  const [filterValue, setFilterValue] = useState("");
+
+  const lastPageIndex = useRef(pagination.pageIndex);
 
   const handleBlock = async (userId: string, status: string) => {
     let newStatus;
@@ -56,11 +76,176 @@ export default function UsersManagement({
     setOpen(true);
   };
 
+  const columns: ColumnDef<IUser>[] = [
+    {
+      accessorKey: "profileImage",
+      header: "Image",
+      cell: ({ row }) => (
+        <Image
+          src={row.original.profileImage || userImage.src}
+          alt={row.original.name}
+          width={50}
+          height={50}
+          className="rounded"
+        />
+      ),
+    },
+    {
+      accessorKey: "name",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Name <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => row.getValue("name"),
+    },
+    {
+      accessorKey: "email",
+      header: "Email",
+      cell: ({ row }) => row.getValue("email"),
+    },
+    {
+      accessorKey: "role",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Role <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <Badge variant="secondary">{row.getValue("role")}</Badge>
+      ),
+    },
+    {
+      accessorKey: "status",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Status <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <Badge
+          variant={row.original.status === "active" ? "default" : "destructive"}
+        >
+          {row.original.status}
+        </Badge>
+      ),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const user = row.original;
+        return (
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleView(user)}
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+            <ConfirmationBox
+              trigger={
+                <Button
+                  variant={user.status === "active" ? "destructive" : "outline"}
+                  size="sm"
+                >
+                  <Ban className="h-4 w-4" />
+                </Button>
+              }
+              onConfirm={() =>
+                handleBlock(user._id as string, user.status as string)
+              }
+              title={`Are you sure you want to ${
+                user.status === "active" ? "block" : "unblock"
+              } this user?`}
+              description="This action can be reversed later."
+            />
+          </div>
+        );
+      },
+    },
+  ];
+
+  const filteredData = React.useMemo(() => {
+    return users.filter(
+      (user) =>
+        user.name.toLowerCase().includes(filterValue.toLowerCase()) ||
+        user.email.toLowerCase().includes(filterValue.toLowerCase())
+    );
+  }, [filterValue, users]);
+
+  const table = useReactTable({
+    data: filteredData,
+    columns,
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onPaginationChange: setPagination,
+    state: {
+      sorting,
+      columnVisibility,
+      pagination,
+    },
+  });
+
+  React.useEffect(() => {
+    table.setPagination({
+      pageIndex: lastPageIndex.current,
+      pageSize: pagination.pageSize,
+    });
+  }, [pagination.pageSize, table]);
+
+  React.useEffect(() => {
+    lastPageIndex.current = pagination.pageIndex;
+  }, [pagination.pageIndex]);
+
   return (
     <div>
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">All Users</h1>
+        </div>
+        <div className="flex items-center py-4">
+          <Input
+            placeholder="Filter by name or email..."
+            value={filterValue}
+            onChange={(e) => setFilterValue(e.target.value)}
+            className="max-w-sm"
+          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Columns <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((col) => col.getCanHide())
+                .map((col) => (
+                  <DropdownMenuCheckboxItem
+                    key={col.id}
+                    checked={col.getIsVisible()}
+                    onCheckedChange={(val) => col.toggleVisibility(val)}
+                  >
+                    {col.id}
+                  </DropdownMenuCheckboxItem>
+                ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {users.length == 0 ? (
@@ -71,91 +256,71 @@ export default function UsersManagement({
           <div className="rounded-md border">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Profile</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-center">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {currentUsers.map((user) => (
-                  <TableRow key={user._id}>
-                    <TableCell>
-                      <Image
-                        src={user.profileImage || userImage.src}
-                        alt={user.name}
-                        className="object-cover rounded-full"
-                        width={40}
-                        height={40}
-                      />
-                    </TableCell>
-                    <TableCell className="font-medium">{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{user.role}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge 
-                        variant={user.status === "active" ? "default" : "destructive"}
-                      >
-                        {user.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleView(user)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <ConfirmationBox
-                          trigger={
-                            <Button 
-                              variant={user.status === "active" ? "destructive" : "outline"}
-                              size="sm"
-                            >
-                              <Ban className="h-4 w-4" />
-                            </Button>
-                          }
-                          onConfirm={() => handleBlock(user._id as string, user.status as string)}
-                          title={`Are you sure you want to ${user.status === "active" ? "block" : "unblock"} this user?`}
-                          description="This action can be reversed later."
-                        />
-                      </div>
-                    </TableCell>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    ))}
                   </TableRow>
                 ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow key={row.id}>
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      No results.
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
-            <div className="flex border-t items-center justify-center space-x-2 py-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(currentPage - 1)}
-                disabled={currentPage === 1}
-              >
-                Previous
-              </Button>
-              <span className="text-sm">
-                Page {currentPage} of {Math.ceil(users.length / itemsPerPage)}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(currentPage + 1)}
-                disabled={currentPage === Math.ceil(users.length / itemsPerPage)}
-              >
-                Next
-              </Button>
-            </div>
           </div>
         )}
-
+        <div className="space-x-2 flex justify-center items-center mt-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Previous
+          </Button>
+          <span>
+            Page {table.getState().pagination.pageIndex + 1} of{" "}
+            {table.getPageCount()}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+          </Button>
+        </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent className="max-h-[calc(100vh-4rem)] overflow-y-auto">
             <DialogHeader>
@@ -194,6 +359,7 @@ export default function UsersManagement({
                   <p>{selectedUser?.address || "Not provided"}</p>
                 </div>
               </div>
+              <GetUsersOrders userId={selectedUser?._id as string} />
             </div>
           </DialogContent>
         </Dialog>

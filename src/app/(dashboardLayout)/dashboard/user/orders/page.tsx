@@ -1,4 +1,7 @@
 import { ContentLayout } from "@/components/admin-panel/content-layout";
+import OrderHistoryManagement from "@/components/modules/user/OrderHistoryManagement";
+import { getMyOrders } from "@/services/OrderService";
+import { getMe } from "@/services/UserService";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -6,10 +9,12 @@ export const metadata: Metadata = {
     description:
       "View your order history and track the status of your past orders in the MediMart system.",
   };
-export default function OrderHistoryPage() {
+export default async function OrderHistoryPage() {
+    const {data} = await getMe();
+    const {data:res} = await getMyOrders(data?._id);
     return (
         <ContentLayout title="Order History">
-            <h1>This is the OrderHistoryPage component</h1>
+            <OrderHistoryManagement orders={res} />
         </ContentLayout>
     );
 }

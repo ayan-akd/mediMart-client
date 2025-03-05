@@ -53,7 +53,7 @@ export default function MedicineCard({ medicine }: { medicine: IMedicine }) {
             <p className="font-bold text-lg">${medicine.price}</p>
           </div>
           <div className="flex gap-2">
-            <Link href={`/shop/${medicine._id}`}>
+            <Link href={`/medicine/${medicine._id}`}>
               <Button variant="outline">View Details</Button>
             </Link>
             <Button

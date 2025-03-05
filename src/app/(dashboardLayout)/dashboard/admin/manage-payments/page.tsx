@@ -1,4 +1,6 @@
 import { ContentLayout } from "@/components/admin-panel/content-layout";
+import ManagePayment from "@/components/modules/admin/order/ManagePayment";
+import { getAllOrders } from "@/services/OrderService";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -6,10 +8,11 @@ export const metadata: Metadata = {
     description:
       "Efficient payment management dashboard for administrators. View and manage customer payments, track payment status, and handle refunds or adjustments in the MediMart system.",
   };
-export default function ManagePaymentsPage() {
+export default async function ManagePaymentsPage() {
+     const {data} = await getAllOrders();
     return (
         <ContentLayout title="Manage Payments">
-            <h1>This is the ManagePaymentsPage component</h1>
+            <ManagePayment orders={data} />
         </ContentLayout>
     );
 }
