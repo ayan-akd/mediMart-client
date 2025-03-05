@@ -154,7 +154,7 @@ export default function OrderHistoryManagement({ orders }: { orders: TOrder[] })
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Payment Management</h1>
+        <h1 className="text-2xl font-bold">Order History</h1>
       </div>
 
       <div className="flex items-center py-4">
