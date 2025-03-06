@@ -69,7 +69,7 @@ export default function HeroSection() {
                         alt="MediMart Hero"
                         width={600}
                         height={500}
-                        className="object-cover"
+                        className="object-cover h-auto w-auto"
                         priority
                     />
                 </motion.div>

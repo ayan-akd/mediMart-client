@@ -28,6 +28,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { updateMedicine } from "@/services/medicines";
 import { IMedicine, medicineCategories, medicineCategoryOptions } from "@/types";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { useAppDispatch } from "@/redux/hook";
+import { fetchLowStockMedicines } from "@/redux/features/notificationSlice";
 
 export const medicineFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -44,6 +46,7 @@ export const medicineFormSchema = z.object({
 });
 
 export default function EditMedicineForm({initialData} : {initialData: IMedicine}) {
+  const dispatch = useAppDispatch();
   const form = useForm<z.infer<typeof medicineFormSchema>>({
     resolver: zodResolver(medicineFormSchema),
     defaultValues: initialData,
@@ -58,6 +61,7 @@ export default function EditMedicineForm({initialData} : {initialData: IMedicine
       const res = await updateMedicine(values, initialData._id as string);
       if (res.success) {
         toast.success(res?.message);
+        dispatch(fetchLowStockMedicines());
       } else {
         toast.error(res?.message);
       }

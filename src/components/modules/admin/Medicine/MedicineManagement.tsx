@@ -88,7 +88,7 @@ export default function MedicineTable({
           alt={row.original.name}
           width={50}
           height={50}
-          className="rounded"
+          className="rounded w-auto h-auto object-cover"
         />
       ),
     },

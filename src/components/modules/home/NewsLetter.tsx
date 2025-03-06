@@ -20,7 +20,7 @@ export default function Newsletter() {
 
   return (
     <section className="py-16 bg-primary/5">
-      <div className="container">
+      <div className="container mx-auto">
         <div className="max-w-2xl mx-auto text-center">
           <Mail className="w-12 h-12 mx-auto mb-4 text-primary" />
           <h2 className="text-3xl font-bold mb-4">Stay Updated with MediMart</h2>

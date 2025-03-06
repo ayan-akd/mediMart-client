@@ -86,7 +86,8 @@ export default function UsersManagement({ users }: { users: IUser[] }) {
           alt={row.original.name}
           width={50}
           height={50}
-          className="rounded"
+          priority
+          className="rounded-full w-auto h-16 object-cover"
         />
       ),
     },
@@ -332,7 +333,7 @@ export default function UsersManagement({ users }: { users: IUser[] }) {
                 <Image
                   src={selectedUser?.profileImage || userImage.src}
                   alt={selectedUser?.name || "User"}
-                  className="rounded-full"
+                  className="rounded-full w-auto h-32 object-cover"
                   width={100}
                   height={100}
                 />

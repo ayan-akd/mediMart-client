@@ -92,7 +92,8 @@ export default function ProfileManagement({ data }: { data: IUser }) {
                 alt={data.name}
                 width={120}
                 height={120}
-                className="rounded-full object-cover"
+                priority
+                className="rounded-full object-cover h-auto w-auto"
               />
             </div>
           </div>

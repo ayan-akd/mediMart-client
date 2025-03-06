@@ -51,6 +51,30 @@ export const getSingleMedicine = async (medicineId: string) => {
   }
 };
 
+export const getLowStockMedicines = async () => {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_API}/medicine`, // Fetch all medicines
+      {
+        next: {
+          tags: ["Medicine"],
+        },
+      }
+    );
+    const data = await res.json();
+
+    // Filter medicines with stock < 10
+    const lowStockMedicines = data?.data?.data?.filter(
+      (medicine: IMedicine) => medicine.quantity < 10
+    );
+
+    return lowStockMedicines;
+  } catch (error: any) {
+    return Error(error.message);
+  }
+};
+
+
 // add medicine
 export const addMedicine = async (medicineData: IMedicine): Promise<any> => {
   const token = await getValidToken();
