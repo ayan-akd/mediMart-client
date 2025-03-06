@@ -49,7 +49,7 @@ export default function FeaturedSection({ data }: { data: IMedicine[] }) {
                             {filtered.map(med => (
                                 <Link 
                                     key={med._id} 
-                                    href={`/shop/${med._id}`}
+                                    href={`/medicine/${med._id}`}
                                     className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-100"
                                 >
                                     <Image src={med.image} alt={med.name} width={10} height={10} className="w-10 h-10 object-cover rounded" />
