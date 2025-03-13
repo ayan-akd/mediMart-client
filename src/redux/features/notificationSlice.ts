@@ -28,7 +28,7 @@ export const fetchLowStockMedicines = createAsyncThunk(
 
     return medicines.map((medicine) => ({
       id: medicine._id as string,
-      message: (`Stock is low for ${medicine.name} (${medicine.quantity} left).`),
+      message: `Stock is low for ${medicine.name} (${medicine.quantity} left).`,
       medicine,
       read: false, // Default to unread
     }));
@@ -40,11 +40,11 @@ const notificationSlice = createSlice({
   initialState,
   reducers: {
     markAllAsRead: (state) => {
-        state.notifications.forEach((notif) => {
-          notif.read = true;
-        });
-        state.unreadCount = 0; // Reset unread count when all are marked as read
-      },
+      state.notifications.forEach((notif) => {
+        notif.read = true;
+      });
+      state.unreadCount = 0; // Reset unread count when all are marked as read
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchLowStockMedicines.fulfilled, (state, action) => {
@@ -54,12 +54,11 @@ const notificationSlice = createSlice({
   },
 });
 
-export const { markAllAsRead } =
-  notificationSlice.actions;
+export const { markAllAsRead } = notificationSlice.actions;
 
 export const notificationsSelector = (state: RootState) =>
   state.notification.notifications;
 export const unreadCountSelector = (state: RootState) =>
-    state.notification.unreadCount;
+  state.notification.unreadCount;
 
 export default notificationSlice.reducer;

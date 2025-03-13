@@ -45,14 +45,14 @@ export default function FeaturedSection({ data }: { data: IMedicine[] }) {
                         className="w-full p-3 border border-gray-300 rounded-lg"
                     />
                     {filtered.length > 0 && (
-                        <div className="absolute w-full bg-white border border-gray-300 shadow-lg rounded-lg mt-1 max-h-60 overflow-y-auto z-10">
+                        <div className="absolute w-full bg-white dark:bg-black border border-gray-300 shadow-lg rounded-lg mt-1 max-h-60 overflow-y-auto z-10">
                             {filtered.map(med => (
                                 <Link 
                                     key={med._id} 
                                     href={`/medicine/${med._id}`}
-                                    className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-100"
+                                    className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
                                 >
-                                    <Image src={med.image} alt={med.name} width={10} height={10} className="w-10 h-10 object-cover rounded" />
+                                    <Image src={med.image} alt={med.name} width={50} height={50} className="w-10 h-10 object-cover rounded" />
                                     <span>{med.name} - {med.category}</span>
                                 </Link>
                             ))}
