@@ -26,8 +26,6 @@ export default function Footer() {
             <h3 className="text-lg font-bold mb-4 dark:text-gray-100">Quick Links</h3>
             <div className="flex flex-col gap-2">
               <Link href="/shop" className="text-gray-600 hover:text-[#E11D48] dark:text-gray-400 dark:hover:text-[#E11D48] text-sm">Shop</Link>
-              <Link href="/prescriptions" className="text-gray-600 hover:text-[#E11D48] dark:text-gray-400 dark:hover:text-[#E11D48] text-sm">Upload Prescription</Link>
-              <Link href="/orders" className="text-gray-600 hover:text-[#E11D48] dark:text-gray-400 dark:hover:text-[#E11D48] text-sm">Track Order</Link>
               <Link href="/about" className="text-gray-600 hover:text-[#E11D48] dark:text-gray-400 dark:hover:text-[#E11D48] text-sm">About Us</Link>
             </div>
           </div>

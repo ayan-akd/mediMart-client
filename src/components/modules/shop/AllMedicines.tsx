@@ -2,7 +2,7 @@
 import { IMedicine, medicineCategoryOptions } from "@/types";
 import { Input } from "@/components/ui/input";
 import { useEffect, useMemo, useState } from "react";
-import { Check, ChevronsUpDown, Search, SlidersHorizontal } from "lucide-react";
+import { Check, ChevronsUpDown, Search, SlidersHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
 import MedicineCard from "./MedicineCard";
 import {
   Select,
@@ -35,27 +35,248 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { useInView } from "react-intersection-observer";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type SortOption = {
   field: "price" | "name" | "stock" | "createdAt";
   order: "asc" | "desc";
 } | null;
 
+const updateURL = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  router: any,
+  searchParams: URLSearchParams,
+  key: string,
+  value: string
+) => {
+  const params = new URLSearchParams(searchParams);
+  if (value && value !== "all") {
+    params.set(key, value);
+  } else {
+    params.delete(key);
+  }
+  const queryString = params.toString();
+  const newURL = queryString ? `/shop?${queryString}` : '/shop';
+  router.push(newURL, { scroll: false });
+};
+
+// Pagination Component
+const Pagination = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}) => {
+  const getVisiblePages = () => {
+    const delta = 2;
+    const range = [];
+    const rangeWithDots = [];
+
+    for (
+      let i = Math.max(2, currentPage - delta);
+      i <= Math.min(totalPages - 1, currentPage + delta);
+      i++
+    ) {
+      range.push(i);
+    }
+
+    if (currentPage - delta > 2) {
+      rangeWithDots.push(1, "...");
+    } else {
+      rangeWithDots.push(1);
+    }
+
+    rangeWithDots.push(...range);
+
+    if (currentPage + delta < totalPages - 1) {
+      rangeWithDots.push("...", totalPages);
+    } else if (totalPages > 1) {
+      rangeWithDots.push(totalPages);
+    }
+
+    return rangeWithDots;
+  };
+
+  if (totalPages <= 1) return null;
+
+  return (
+    <div className="flex items-center justify-center gap-2 mt-8">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="flex items-center gap-1"
+      >
+        <ChevronLeft className="h-4 w-4" />
+        Previous
+      </Button>
+
+      <div className="flex items-center gap-1">
+        {getVisiblePages().map((page, index) => (
+          <div key={index}>
+            {page === "..." ? (
+              <span className="px-3 py-2 text-muted-foreground">...</span>
+            ) : (
+              <Button
+                variant={currentPage === page ? "default" : "outline"}
+                size="sm"
+                onClick={() => onPageChange(page as number)}
+                className="min-w-[40px]"
+              >
+                {page}
+              </Button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="flex items-center gap-1"
+      >
+        Next
+        <ChevronRight className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+};
+
+// Items per page selector
+const ItemsPerPageSelector = ({
+  itemsPerPage,
+  onItemsPerPageChange,
+}: {
+  itemsPerPage: number;
+  onItemsPerPageChange: (items: number) => void;
+}) => {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-sm text-muted-foreground">Show:</span>
+      <Select
+        value={itemsPerPage.toString()}
+        onValueChange={(value) => onItemsPerPageChange(Number(value))}
+      >
+        <SelectTrigger className="w-20">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="8">8</SelectItem>
+          <SelectItem value="12">12</SelectItem>
+          <SelectItem value="16">16</SelectItem>
+          <SelectItem value="24">24</SelectItem>
+          <SelectItem value="32">32</SelectItem>
+        </SelectContent>
+      </Select>
+      <span className="text-sm text-muted-foreground">per page</span>
+    </div>
+  );
+};
+
 export default function AllMedicines({ data }: { data: IMedicine[] }) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [minPrice, setMinPrice] = useState<number | "">("");
   const [maxPrice, setMaxPrice] = useState<number | "">("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedCategory, setSelectedCategory] = useState<string>(
+    searchParams.get("categories") || "all"
+  );
   const [prescriptionRequired, setPrescriptionRequired] = useState<
     boolean | null
   >(null);
   const [sortOption, setSortOption] = useState<SortOption>(null);
-  const [page, setPage] = useState(1);
-  const [displayedMedicines, setDisplayedMedicines] = useState<IMedicine[]>([]);
-  const ITEMS_PER_PAGE = 8;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(8);
 
-  const { ref, inView } = useInView();
+  useEffect(() => {
+    const categories = searchParams.get("categories");
+    const search = searchParams.get("search");
+    const minPriceParam = searchParams.get("minPrice");
+    const maxPriceParam = searchParams.get("maxPrice");
+    const prescriptionParam = searchParams.get("prescription");
+    const pageParam = searchParams.get("page");
+
+    if (categories) {
+      setSelectedCategory(categories);
+    }
+    if (search) {
+      setSearchTerm(search);
+    }
+    if (minPriceParam) {
+      setMinPrice(Number(minPriceParam));
+    }
+    if (maxPriceParam) {
+      setMaxPrice(Number(maxPriceParam));
+    }
+    if (prescriptionParam) {
+      setPrescriptionRequired(
+        prescriptionParam === "true"
+          ? true
+          : prescriptionParam === "false"
+          ? false
+          : null
+      );
+    }
+    if (pageParam) {
+      setCurrentPage(Number(pageParam));
+    }
+  }, [searchParams]);
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1); // Reset to first page when searching
+    updateURL(router, searchParams, "search", value);
+  };
+
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value);
+    setCurrentPage(1); // Reset to first page when filtering
+    updateURL(router, searchParams, "categories", value);
+  };
+
+  const handleMinPriceChange = (value: number) => {
+    setMinPrice(value);
+    setCurrentPage(1); // Reset to first page when filtering
+    updateURL(router, searchParams, "minPrice", value.toString());
+  };
+
+  const handleMaxPriceChange = (value: number) => {
+    setMaxPrice(value);
+    setCurrentPage(1); // Reset to first page when filtering
+    updateURL(router, searchParams, "maxPrice", value.toString());
+  };
+
+  const handlePrescriptionChange = (checked: boolean) => {
+    const newValue = checked ? true : null;
+    setPrescriptionRequired(newValue);
+    setCurrentPage(1); // Reset to first page when filtering
+    updateURL(
+      router,
+      searchParams,
+      "prescription",
+      newValue === true ? "true" : ""
+    );
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    updateURL(router, searchParams, "page", page.toString());
+    // Scroll to top when page changes
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleItemsPerPageChange = (items: number) => {
+    setItemsPerPage(items);
+    setCurrentPage(1); // Reset to first page when changing items per page
+    updateURL(router, searchParams, "page", "1");
+  };
 
   const filteredResults = useMemo(() => {
     return data
@@ -110,19 +331,29 @@ export default function AllMedicines({ data }: { data: IMedicine[] }) {
             return 0;
         }
       });
-  }, [data, searchTerm, minPrice, maxPrice, selectedCategory, prescriptionRequired, sortOption]);
+  }, [
+    data,
+    searchTerm,
+    minPrice,
+    maxPrice,
+    selectedCategory,
+    prescriptionRequired,
+    sortOption,
+  ]);
 
-  useEffect(() => {
-    const start = 0;
-    const end = page * ITEMS_PER_PAGE;
-    setDisplayedMedicines(filteredResults.slice(start, end));
-  }, [page, filteredResults]);
-  
-  useEffect(() => {
-    if (inView && displayedMedicines.length < filteredResults.length) {
-      setPage((prev) => prev + 1);
-    }
-  }, [inView, filteredResults.length, displayedMedicines.length]);
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredResults.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentMedicines = filteredResults.slice(startIndex, endIndex);
+
+  // Results info
+  const resultsInfo = {
+    showing: currentMedicines.length,
+    total: filteredResults.length,
+    start: startIndex + 1,
+    end: Math.min(endIndex, filteredResults.length),
+  };
 
   return (
     <div className="py-8">
@@ -140,7 +371,7 @@ export default function AllMedicines({ data }: { data: IMedicine[] }) {
             placeholder="Search medicines..."
             className="pl-8"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
           />
         </div>
         <Sheet>
@@ -183,7 +414,7 @@ export default function AllMedicines({ data }: { data: IMedicine[] }) {
                           <CommandGroup>
                             <CommandItem
                               value="All Categories"
-                              onSelect={() => setSelectedCategory("all")}
+                              onSelect={() => handleCategoryChange("all")}
                             >
                               <Check
                                 className={cn(
@@ -200,7 +431,7 @@ export default function AllMedicines({ data }: { data: IMedicine[] }) {
                                 value={category.label}
                                 key={category.value}
                                 onSelect={() =>
-                                  setSelectedCategory(category.value)
+                                  handleCategoryChange(category.value)
                                 }
                               >
                                 <Check
@@ -228,13 +459,17 @@ export default function AllMedicines({ data }: { data: IMedicine[] }) {
                       type="number"
                       placeholder="Min price"
                       value={minPrice}
-                      onChange={(e) => setMinPrice(Number(e.target.value))}
+                      onChange={(e) =>
+                        handleMinPriceChange(Number(e.target.value))
+                      }
                     />
                     <Input
                       type="number"
                       placeholder="Max price"
                       value={maxPrice}
-                      onChange={(e) => setMaxPrice(Number(e.target.value))}
+                      onChange={(e) =>
+                        handleMaxPriceChange(Number(e.target.value))
+                      }
                     />
                   </div>
                 </div>
@@ -293,9 +528,7 @@ export default function AllMedicines({ data }: { data: IMedicine[] }) {
                     <Checkbox
                       id="prescription"
                       checked={prescriptionRequired === true}
-                      onCheckedChange={(checked) => {
-                        setPrescriptionRequired(checked ? true : null);
-                      }}
+                      onCheckedChange={handlePrescriptionChange}
                     />
                     <label htmlFor="prescription">Prescription Required</label>
                   </div>
@@ -338,7 +571,7 @@ export default function AllMedicines({ data }: { data: IMedicine[] }) {
                       <CommandGroup>
                         <CommandItem
                           value="All Categories"
-                          onSelect={() => setSelectedCategory("all")}
+                          onSelect={() => handleCategoryChange("all")}
                         >
                           <Check
                             className={cn(
@@ -354,7 +587,7 @@ export default function AllMedicines({ data }: { data: IMedicine[] }) {
                           <CommandItem
                             value={category.label}
                             key={category.value}
-                            onSelect={() => setSelectedCategory(category.value)}
+                            onSelect={() => handleCategoryChange(category.value)}
                           >
                             <Check
                               className={cn(
@@ -381,13 +614,13 @@ export default function AllMedicines({ data }: { data: IMedicine[] }) {
                   type="number"
                   placeholder="Min price"
                   value={minPrice}
-                  onChange={(e) => setMinPrice(Number(e.target.value))}
+                  onChange={(e) => handleMinPriceChange(Number(e.target.value))}
                 />
                 <Input
                   type="number"
                   placeholder="Max price"
                   value={maxPrice}
-                  onChange={(e) => setMaxPrice(Number(e.target.value))}
+                  onChange={(e) => handleMaxPriceChange(Number(e.target.value))}
                 />
               </div>
             </div>
@@ -434,9 +667,7 @@ export default function AllMedicines({ data }: { data: IMedicine[] }) {
                 <Checkbox
                   id="prescription"
                   checked={prescriptionRequired === true}
-                  onCheckedChange={(checked) => {
-                    setPrescriptionRequired(checked ? true : null);
-                  }}
+                  onCheckedChange={handlePrescriptionChange}
                 />
                 <label htmlFor="prescription">Prescription Required</label>
               </div>
@@ -446,25 +677,52 @@ export default function AllMedicines({ data }: { data: IMedicine[] }) {
 
         {/* Main Content */}
         <div className="flex-1">
+          {/* Results Info and Items Per Page Selector */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div className="text-sm text-muted-foreground">
+              {filteredResults.length > 0 ? (
+                <>
+                  Showing {resultsInfo.start}-{resultsInfo.end} of{" "}
+                  {resultsInfo.total} results
+                </>
+              ) : (
+                "No results found"
+              )}
+            </div>
+            <ItemsPerPageSelector
+              itemsPerPage={itemsPerPage}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
+          </div>
+
+          {/* Medicine Grid */}
           <div className="grid grid-cols-[repeat(auto-fill,minmax(min(275px,100%),1fr))] gap-4">
-            {displayedMedicines.map((medicine) => (
+            {currentMedicines.map((medicine) => (
               <MedicineCard key={medicine._id} medicine={medicine} />
             ))}
           </div>
 
-          {/* Intersection Observer Target */}
-          {displayedMedicines.length < filteredResults.length && (
-            <div ref={ref} className="w-full py-8 flex justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            </div>
-          )}
-
+          {/* No Results Message */}
           {filteredResults.length === 0 && (
             <div className="text-center py-12">
               <h2 className="text-2xl font-semibold">No medicines found</h2>
               <p className="text-muted-foreground">
                 Try adjusting your search or filters
               </p>
+            </div>
+          )}
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+
+          {/* Results Summary */}
+          {filteredResults.length > 0 && (
+            <div className="text-center mt-6 text-sm text-muted-foreground">
+              Page {currentPage} of {totalPages} • {filteredResults.length} total results
             </div>
           )}
         </div>
