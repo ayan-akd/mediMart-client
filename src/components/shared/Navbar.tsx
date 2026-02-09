@@ -95,7 +95,7 @@ export default function Navbar() {
   const linkList = [
     {
       name: "Dashboard",
-      href: "/dashboard/profile",
+      href: user?.role === "admin" ? "/dashboard/admin/overview" : "/dashboard/user/overview",
     },
     {
       name: "Announcement",

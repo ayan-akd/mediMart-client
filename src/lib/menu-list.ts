@@ -5,7 +5,8 @@ import {
   LayoutList,
   UserPenIcon,
   DollarSignIcon,
-  HistoryIcon
+  HistoryIcon,
+  User,
 } from "lucide-react";
 
 type Submenu = {
@@ -35,7 +36,7 @@ export function getMenuList(role: string): Group[] {
         {
           href: "/dashboard/profile",
           label: "Profile",
-          icon: LayoutGrid,
+          icon: User,
           submenus: [],
         },
       ],
@@ -46,6 +47,11 @@ export function getMenuList(role: string): Group[] {
     {
       groupLabel: "Admin Controls",
       menus: [
+        {
+          href: "/dashboard/admin/overview",
+          label: "Overview",
+          icon: LayoutGrid,
+        },
         {
           href: "/dashboard/admin/manage-medicines",
           label: "Manage Medicines",
@@ -75,6 +81,11 @@ export function getMenuList(role: string): Group[] {
       groupLabel: "User Controls",
       menus: [
         {
+          href: "/dashboard/user/overview",
+          label: "Overview",
+          icon: LayoutGrid,
+        },
+        {
           href: "/dashboard/user/orders",
           label: "Order History",
           icon: HistoryIcon,
@@ -83,5 +94,7 @@ export function getMenuList(role: string): Group[] {
     },
   ];
 
-  return role === "admin" ? [...commonMenus, ...adminMenus] : [...commonMenus, ...userMenus];
+  return role === "admin"
+    ? [...commonMenus, ...adminMenus]
+    : [...commonMenus, ...userMenus];
 }

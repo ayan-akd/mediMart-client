@@ -1,15 +1,17 @@
 import { IMedicine } from "./medicine";
+import { IUser } from "./user";
 
 export type TOrder = {
   _id?: string;
   orderId: string;
-  user: string;
+  user: IUser;
   medicines: { medicine: IMedicine; quantity: number }[];
   quantity: number;
   totalPrice: number;
   city: string;
   address: string;
   prescription?: string;
+  createdAt?: Date;
   status?:
     | "Pending"
     | "Paid"
