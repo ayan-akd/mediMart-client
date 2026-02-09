@@ -25,7 +25,7 @@ const filePath = path.join(dirPath, "index.ts");
 const fileContent = `"use server";
 
 import { getValidToken } from "@/lib/verifyToken";
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 import { T${capitalize(moduleName)} } from "@/types";
 
 // Get all ${moduleName}s
@@ -60,7 +60,7 @@ export const create${capitalize(
       },
     });
 
-    revalidateTag("${moduleName}s");
+    updateTag("${moduleName}s");
 
     return res.json();
   } catch (error: any) {
@@ -82,7 +82,7 @@ export const delete${capitalize(
       },
     });
 
-    revalidateTag("${moduleName}s");
+    updateTag("${moduleName}s");
     return res.json();
   } catch (error: any) {
     return Error(error);

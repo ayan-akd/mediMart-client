@@ -2,7 +2,7 @@
 "use server";
 import { getValidToken } from "@/lib/VerifyToken";
 import { IMedicine } from "@/types";
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 
 // get all medicine
 export const getAllMedicine = async (
@@ -87,7 +87,7 @@ export const addMedicine = async (medicineData: IMedicine): Promise<any> => {
         Authorization: token,
       },
     });
-    revalidateTag("Medicine");
+    updateTag("Medicine");
     return res.json();
   } catch (error: any) {
     return Error(error);
@@ -112,7 +112,7 @@ export const updateMedicine = async (
         },
       }
     );
-    revalidateTag("Medicine");
+    updateTag("Medicine");
     return res.json();
   } catch (error: any) {
     return Error(error);
@@ -133,7 +133,7 @@ export const deleteMedicine = async (
           },
         }
       );
-      revalidateTag("Medicine");
+      updateTag("Medicine");
       return res.json();
     } catch (error: any) {
       return Error(error);

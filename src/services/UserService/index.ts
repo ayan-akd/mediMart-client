@@ -3,7 +3,7 @@
 
 import { getValidToken } from "@/lib/VerifyToken";
 import { IUser } from "@/types";
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 
 
 // Get all users
@@ -57,7 +57,7 @@ export const updateUser = async (userId: string, userData:IUser): Promise<any> =
       },
     });
 
-    revalidateTag("Users");
+    updateTag("Users");
     return res.json();
   } catch (error: any) {
     return Error(error);
@@ -77,7 +77,7 @@ export const changeStatus = async (userId: string, status:string): Promise<any> 
       },
     });
 
-    revalidateTag("Users");
+    updateTag("Users");
     return res.json();
   } catch (error: any) {
     return Error(error);

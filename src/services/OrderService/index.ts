@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 import { getValidToken } from "@/lib/VerifyToken";
 
 // Get all orders
@@ -50,7 +50,7 @@ export const createOrder = async (orderData: any): Promise<any> => {
       },
     });
 
-    revalidateTag("orders");
+    updateTag("orders");
 
     return res.json();
   } catch (error: any) {
@@ -73,7 +73,7 @@ export const deleteOrder = async (orderId: string): Promise<any> => {
       }
     );
 
-    revalidateTag("orders");
+    updateTag("orders");
     return res.json();
   } catch (error: any) {
     return Error(error);
@@ -117,7 +117,7 @@ export const changeOrderStatus = async (
         },
       }
     );
-    revalidateTag("orders");
+    updateTag("orders");
     return res.json();
   } catch (error: any) {
     return Error(error);
